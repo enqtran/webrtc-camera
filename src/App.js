@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 window.stream = null
 
@@ -45,14 +45,14 @@ const App = () => {
         }
     }
 
-    useEffect(() => {
-        get_media()
-    }, [])
-
-    return (<div class="container text-center mt-5">
+    return (<div className="container text-center mt-5">
         <video id="localstream" width="320" height="240" controls>
             Your browser does not support the video tag.
         </video>
+
+        <div>
+            <button onClick={get_media} className="btn btn-primary shadaw-none">INIT CAMERA</button>
+        </div>
 
         <div>
             <h3>List device input/output</h3>
