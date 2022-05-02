@@ -4,7 +4,6 @@ window.stream = null
 
 const App = () => {
     const [list_device, set_list_device] = useState({})
-    const [err, set_err] = useState({})
 
     const constraints = {
         audio: false,
@@ -17,50 +16,55 @@ const App = () => {
     }
 
     const get_device = async () => {
-        const devices = await navigator.mediaDevices.enumerateDevices()
-        console.log(devices)
-        await set_list_device(devices)
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices()
+            await set_list_device(devices)
+        } catch (error) {
+            alert('get_device ' + error)
+        }
     }
 
     const get_media = async () => {
         try {
-            const media = await navigator.mediaDevices.getUserMedia(constraints)
-            await get_device()
-            const video = document.querySelector("#localstream")
-            window.stream = media
-            video.srcObject = media
+            if ('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices) {
+                alert("Let's get this party started")
+                const media = await navigator.mediaDevices.getUserMedia(constraints)
+                await get_device()
+                const video = document.querySelector("#localstream")
+                window.stream = media
 
-            if ("srcObject" in video) {
-                video.srcObject = media
+                if ("srcObject" in video) {
+                    video.srcObject = media
+                } else {
+                    video.src = window.URL.createObjectURL(media)
+                }
+                video.autoplay = true;
+                // video.onloadedmetadata = async (e) => {
+                //     // await video.play()
+                //     e = await media.getVideoTracks()[0]
+                // }
             } else {
-                video.src = window.URL.createObjectURL(media)
+                alert("Not media")
             }
-            video.onloadedmetadata = async (e) => {
-                await video.play()
-                e = await media.getVideoTracks()[0]
-            }
+
         } catch (error) {
             console.log('get_media', error)
-            set_err(error)
+            alert('get_media ' + error)
         }
     }
 
     return (<div className="container text-center mt-5">
-        <video id="localstream" width="320" height="240" controls>
+        <video id="localstream" width="320" height="240" className="bg-secondary" autoplay>
             Your browser does not support the video tag.
         </video>
 
         <div>
-            <button onClick={get_media} className="btn btn-primary shadaw-none">INIT CAMERA</button>
+            <button onClick={get_media} className="btn btn-primary shadaw-none">START CAMERA</button>
         </div>
 
         <div>
             <h3>List device input/output</h3>
             {list_device && JSON.stringify(list_device)}
-        </div>
-
-        <div>
-            {err && JSON.stringify(err)}
         </div>
     </div>)
 }
